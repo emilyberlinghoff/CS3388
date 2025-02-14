@@ -1,6 +1,6 @@
 # **When rendering translucent (semi-transparent) objects, why must you render objects further away from the camera before objects closer to the camera?**
 
-When rendering translucent (semi-transparent) obnjects, you must render objects further away from the camera before objects closer to the camera for a few reasons:
+When rendering translucent (semi-transparent) objects, you must render objects further away from the camera before objects closer to the camera for a few reasons:
 
 1. **Blending in OpenGL is non-commutative**
     - The blending funciton used (`GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA`) deteriens the final colour by blending the new fragment colouir with the existing colour in the framebuffer.
@@ -85,7 +85,7 @@ glEnd();
 - The background object is drawn after, completely overwriting the foreground's blending effect.
 - Since OpenGL blends each fragment with the current framebuffer state, the foreground object never has a chance to mix with the background because it wasn't drawn yet.
 
-# **Why is the default value for glClearDepth equal to 1?**
+# **Why is the default value for `glClearDepth` equal to 1?**
 
 ## **The purpose of the depth buffer**
   - The depth buffer sotres depth values (Z_values) for each pixel to determine which fragments are in front and should be rendered.

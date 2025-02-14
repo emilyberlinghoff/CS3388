@@ -1,122 +1,84 @@
-{
-  "nbformat": 4,
-  "nbformat_minor": 0,
-  "metadata": {
-    "colab": {
-      "provenance": [],
-      "authorship_tag": "ABX9TyNyMBtabf0Imvx/ke9666HY",
-      "include_colab_link": true
-    },
-    "kernelspec": {
-      "name": "python3",
-      "display_name": "Python 3"
-    },
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "view-in-github",
-        "colab_type": "text"
-      },
-      "source": [
-        "<a href=\"https://colab.research.google.com/github/emilyberlinghoff/CS3388/blob/main/Homework%206/README.md\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "source": [
-        "When rendering translucent (semi-transparent) obnjects, you must render objects further away from the camera before objects closer to the camera for a few reasons:\n",
-        "\n",
-        "1. **Blending in OpenGL is non-commutative**\n",
-        "    - The blending funciton used (`GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA`) deteriens the final colour by blending the new fragment colouir with the existing colour in the framebuffer.\n",
-        "    - If a closer translucent object is drawn before a farther object, it blends with the deault background, ignoring the farther object.\n",
-        "2. **Depth buffer interference**\n",
-        "    - if depth testing (`glEnable(GL_DEPTH_TEST`)) is enabled, closer fragments overwrite farther fragments.\n",
-        "    - However, depth writes must be disabled for transparency using `glDEPTHMASK(GL_FALSE`), ensuring that translucent objects don't prevent further objects from rendering.\n",
-        "3. **Transparency requires manual sorting**\n",
-        "    - Unlike opaque objects, where Z_buffering handles visibility, transparent objects require manual sorting in a back-to-front order.\n",
-        "    - This ensures that the background is drawn first, and transparency layers ocrrectly stack on top.\n",
-        "\n",
-        "## First code segment\n",
-        "```cpp\n",
-        "glMatrixMode(GL_PROJECTION);\n",
-        "glm::mat4 P = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);\n",
-        "glLoadMatrixf(glm::value_ptr(P));\n",
-        "\n",
-        "glEnable(GL_BLEND);\n",
-        "glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);\n",
-        "\n",
-        "glBegin(GL_TRIANGLES);\n",
-        "    glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Background (further away)\n",
-        "    glVertex3f(0.0f, 1.0f, -3.0f);\n",
-        "    glVertex3f(-1.0f, 1.0f, -3.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -3.0f);\n",
-        "\n",
-        "    glVertex3f(0.0f, 1.0f, -3.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -3.0f);\n",
-        "    glVertex3f(-1.0f, -1.0f, -3.0f);\n",
-        "glEnd();\n",
-        "\n",
-        "glColor4f(0.0f, 0.0f, 1.0f, 0.3f); // Foreground (closer to the camera)\n",
-        "glBegin(GL_TRIANGLES);\n",
-        "    glVertex3f(-0.5f, 0.0f, -5.0f);\n",
-        "    glVertex3f(-0.5f, -1.0f, -5.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -5.0f);\n",
-        "\n",
-        "    glVertex3f(1.0f, 0.0f, -5.0f);\n",
-        "    glVertex3f(-0.5f, -1.0f, -5.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -5.0f);\n",
-        "glEnd();\n",
-        "```\n",
-        "- Works\n",
-        "- The background object (further away) is drawn first.\n",
-        "- The foreground translucent object is drawn after the background, allowing proper alpha blending.\n",
-        "- Since OpenGL belnds new fragments with existing framebuffer colours, this order ensures that the background colours are properly factored into the final colour.\n",
-        "- Transparency is cumulative, meaning closer objects modify the already belnded colours behind them.\n",
-        "\n",
-        "## Second code segment\n",
-        "```cpp\n",
-        "glMatrixMode(GL_PROJECTION);\n",
-        "glm::mat4 P = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);\n",
-        "glLoadMatrixf(glm::value_ptr(P));\n",
-        "\n",
-        "glEnable(GL_BLEND);\n",
-        "glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);\n",
-        "\n",
-        "glBegin(GL_TRIANGLES);\n",
-        "    glColor4f(0.0f, 0.0f, 1.0f, 0.3f); // Foreground (closer to the camera)\n",
-        "    glVertex3f(-0.5f, 0.0f, -5.0f);\n",
-        "    glVertex3f(-0.5f, -1.0f, -5.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -5.0f);\n",
-        "\n",
-        "    glVertex3f(1.0f, 0.0f, -5.0f);\n",
-        "    glVertex3f(-0.5f, -1.0f, -5.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -5.0f);\n",
-        "glEnd();\n",
-        "\n",
-        "glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Background (further away)\n",
-        "glBegin(GL_TRIANGLES);\n",
-        "    glVertex3f(0.0f, 1.0f, -3.0f);\n",
-        "    glVertex3f(-1.0f, 1.0f, -3.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -3.0f);\n",
-        "\n",
-        "    glVertex3f(0.0f, 1.0f, -3.0f);\n",
-        "    glVertex3f(1.0f, -1.0f, -3.0f);\n",
-        "    glVertex3f(-1.0f, -1.0f, -3.0f);\n",
-        "glEnd();\n",
-        "```\n",
-        "- Doesn't work\n",
-        "- The foreground (closer) colour is drawn first.\n",
-        "- The background object is drawn after, completely overwriting the foreground's blending effect.\n",
-        "- Since OpenGL blends each fragment with the current framebuffer state, the foreground object never has a chance to mix with the background because it wasn't drawn yet."
-      ],
-      "metadata": {
-        "id": "kFImHFzK2W8M"
-      }
-    }
-  ]
-}
+When rendering translucent (semi-transparent) obnjects, you must render objects further away from the camera before objects closer to the camera for a few reasons:
+
+1. **Blending in OpenGL is non-commutative**
+    - The blending funciton used (`GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA`) deteriens the final colour by blending the new fragment colouir with the existing colour in the framebuffer.
+    - If a closer translucent object is drawn before a farther object, it blends with the deault background, ignoring the farther object.
+2. **Depth buffer interference**
+    - if depth testing (`glEnable(GL_DEPTH_TEST`)) is enabled, closer fragments overwrite farther fragments.
+    - However, depth writes must be disabled for transparency using `glDEPTHMASK(GL_FALSE`), ensuring that translucent objects don't prevent further objects from rendering.
+3. **Transparency requires manual sorting**
+    - Unlike opaque objects, where Z_buffering handles visibility, transparent objects require manual sorting in a back-to-front order.
+    - This ensures that the background is drawn first, and transparency layers ocrrectly stack on top.
+
+## First code segment
+```cpp
+glMatrixMode(GL_PROJECTION);
+glm::mat4 P = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);
+glLoadMatrixf(glm::value_ptr(P));
+
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+glBegin(GL_TRIANGLES);
+    glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Background (further away)
+    glVertex3f(0.0f, 1.0f, -3.0f);
+    glVertex3f(-1.0f, 1.0f, -3.0f);
+    glVertex3f(1.0f, -1.0f, -3.0f);
+
+    glVertex3f(0.0f, 1.0f, -3.0f);
+    glVertex3f(1.0f, -1.0f, -3.0f);
+    glVertex3f(-1.0f, -1.0f, -3.0f);
+glEnd();
+
+glColor4f(0.0f, 0.0f, 1.0f, 0.3f); // Foreground (closer to the camera)
+glBegin(GL_TRIANGLES);
+    glVertex3f(-0.5f, 0.0f, -5.0f);
+    glVertex3f(-0.5f, -1.0f, -5.0f);
+    glVertex3f(1.0f, -1.0f, -5.0f);
+
+    glVertex3f(1.0f, 0.0f, -5.0f);
+    glVertex3f(-0.5f, -1.0f, -5.0f);
+    glVertex3f(1.0f, -1.0f, -5.0f);
+glEnd();
+```
+- Works
+- The background object (further away) is drawn first.
+- The foreground translucent object is drawn after the background, allowing proper alpha blending.
+- Since OpenGL belnds new fragments with existing framebuffer colours, this order ensures that the background colours are properly factored into the final colour.
+- Transparency is cumulative, meaning closer objects modify the already belnded colours behind them.
+
+## Second code segment
+```cpp
+glMatrixMode(GL_PROJECTION);
+glm::mat4 P = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);
+glLoadMatrixf(glm::value_ptr(P));
+
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+glBegin(GL_TRIANGLES);
+    glColor4f(0.0f, 0.0f, 1.0f, 0.3f); // Foreground (closer to the camera)
+    glVertex3f(-0.5f, 0.0f, -5.0f);
+    glVertex3f(-0.5f, -1.0f, -5.0f);
+    glVertex3f(1.0f, -1.0f, -5.0f);
+
+    glVertex3f(1.0f, 0.0f, -5.0f);
+    glVertex3f(-0.5f, -1.0f, -5.0f);
+    glVertex3f(1.0f, -1.0f, -5.0f);
+glEnd();
+
+glColor4f(1.0f, 0.0f, 0.0f, 0.5f); // Background (further away)
+glBegin(GL_TRIANGLES);
+    glVertex3f(0.0f, 1.0f, -3.0f);
+    glVertex3f(-1.0f, 1.0f, -3.0f);
+    glVertex3f(1.0f, -1.0f, -3.0f);
+
+    glVertex3f(0.0f, 1.0f, -3.0f);
+    glVertex3f(1.0f, -1.0f, -3.0f);
+    glVertex3f(-1.0f, -1.0f, -3.0f);
+glEnd();
+```
+- Doesn't work
+- The foreground (closer) colour is drawn first.
+- The background object is drawn after, completely overwriting the foreground's blending effect.
+- Since OpenGL blends each fragment with the current framebuffer state, the foreground object never has a chance to mix with the background because it wasn't drawn yet.

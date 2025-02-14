@@ -1,3 +1,5 @@
+# **When rendering translucent (semi-transparent) objects, why must you render objects further away from the camera before objects closer to the camera?**
+
 When rendering translucent (semi-transparent) obnjects, you must render objects further away from the camera before objects closer to the camera for a few reasons:
 
 1. **Blending in OpenGL is non-commutative**
@@ -10,7 +12,7 @@ When rendering translucent (semi-transparent) obnjects, you must render objects 
     - Unlike opaque objects, where Z_buffering handles visibility, transparent objects require manual sorting in a back-to-front order.
     - This ensures that the background is drawn first, and transparency layers ocrrectly stack on top.
 
-## First code segment
+## **First code segment**
 ```cpp
 glMatrixMode(GL_PROJECTION);
 glm::mat4 P = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);
@@ -47,7 +49,7 @@ glEnd();
 - Since OpenGL belnds new fragments with existing framebuffer colours, this order ensures that the background colours are properly factored into the final colour.
 - Transparency is cumulative, meaning closer objects modify the already belnded colours behind them.
 
-## Second code segment
+## **Second code segment**
 ```cpp
 glMatrixMode(GL_PROJECTION);
 glm::mat4 P = glm::perspective(glm::radians(45.0f), screenW/screenH, 0.001f, 1000.0f);

@@ -87,29 +87,29 @@ glEnd();
 
 # **Why is the default value for glClearDepth equal to 1?**
 
-##**The purpose of the depth buffer**
+## **The purpose of the depth buffer**
   - The depth buffer sotres depth values (Z_values) for each pixel to determine which fragments are in front and should be rendered.
   - When a new fragments is processed, OpenGL compares its depth value witht he value already stored in the depth buffer (using a depth function like `GL_LESS` or `GL_GREATER`).
   - If the new fragment "passes" the depth test, it replaces the current value in the buffer, ensuring that only the closest visible surfaces are drawn.
 
-##**How depth values are assigned to fragments**
+## **How depth values are assigned to fragments**
   - After transformation and projection, frasgment depth valeus are mapped to Normalized Device Coordinates (NDC).
   - In NDC space, the depth range is mapped to $[-1,1]$, but OpenGL remaps this range intot he depth buffer range $[0,1]$ (in standard depth mode).
   - The near clipping plane is mapped to `0.0` (closest to the camera).
   - The far clipping plane is mapped to `1.0` (furthest from the camera).
 
-##**Why `glClearDepth(1.0)` is the default**
+## **Why `glClearDepth(1.0)` is the default**
   - When clearing the depth buffer at the beginning of a new frame, we want to reset all depth values to the "farthest possible" depth.
     - The ensures that any object rendered int he scene will be closer than this initial value, allowing proper depth comparisons.
   - Since the far plane is ampped to 1.0 int he depth buffer, setting the default clear value to 1.0 makes sense.
     - It means that, initially, all pixels are set to "infinately far" (maximum depth), so any actual geometry will pass the depth test and be drawn.
 
-##**What would happen if `glClearDepth(0.0)**
+## **What would happen if `glClearDepth(0.0)**
   - If we cleared the depth buffer with `glClearDepth(0.0)`, every pixel would intiially have the minimum depth value (clsoest possible).
   - This would cause depth tests with `GL_LESS` (default depth function) to fail, since new fragments would have greater depth values and would not be drawn.
   - The result is that only objects at the near clipping plane (depth = 0) would be rendered, and everything else would be hidden.
 
-##**Sources**
+## **Sources**
   - [Khronos](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClearDepth.xhtml)
   - [Learn OpenGL](https://learnopengl.com/)
   - Not a source but check out this license [here](https://www.opengl-tutorial.org/download/). Also read the **Forget Everything** part of one of their [tutorials](https://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/).

@@ -104,7 +104,7 @@ glEnd();
   - Since the far plane is ampped to 1.0 int he depth buffer, setting the default clear value to 1.0 makes sense.
     - It means that, initially, all pixels are set to "infinately far" (maximum depth), so any actual geometry will pass the depth test and be drawn.
 
-## **What would happen if `glClearDepth(0.0)**
+## **What would happen if `glClearDepth(0.0)`**
   - If we cleared the depth buffer with `glClearDepth(0.0)`, every pixel would intiially have the minimum depth value (clsoest possible).
   - This would cause depth tests with `GL_LESS` (default depth function) to fail, since new fragments would have greater depth values and would not be drawn.
   - The result is that only objects at the near clipping plane (depth = 0) would be rendered, and everything else would be hidden.

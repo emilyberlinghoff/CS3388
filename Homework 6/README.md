@@ -113,3 +113,6 @@ glEnd();
   - [Khronos](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClearDepth.xhtml)
   - [Learn OpenGL](https://learnopengl.com/)
   - Not a source but check out this license [here](https://www.opengl-tutorial.org/download/). Also read the **Forget Everything** part of one of their [tutorials](https://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/).
+
+# Question 3 and 4 Output
+![Triangle Output](Screenshot 2025-02-14 at 12.17.18.png)

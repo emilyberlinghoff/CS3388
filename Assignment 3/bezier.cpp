@@ -3,35 +3,35 @@
 #include <cmath>
 #include <iostream>
 
-// Struct to represent a 2D point
+// Struct for a 2D point
 struct Point {
     float x, y;
 };
 
-// Struct to represent a node (a point with optional control handles)
+// Struct for a node (a point with optional control handles)
 struct Node : Point {
-    bool hasHandle1 = false, hasHandle2 = false; // Flags to indicate if control handles exist
+    bool hasHandle1 = false, hasHandle2 = false; // Flags to indicate control handles exist
     Point handle1, handle2; // Control handle positions
 };
 
 // Global variables
-std::vector<Node> nodes; // List of nodes in the spline
-bool draggingNode = false, draggingHandle = false; // Flags to track dragging state
-int draggedIndex = -1, draggedHandleIndex = -1; // Indexes for tracking dragged node or handle
+std::vector<Node> nodes; // Stores all nodes in the spline
+bool draggingNode = false, draggingHandle = false;
+int draggedIndex = -1, draggedHandleIndex = -1;
 int screenWidth = 800, screenHeight = 600;  // Default window size
 
 // Function to initialize OpenGL settings
 void initOpenGL() {
     glEnable(GL_MULTISAMPLE);  // Enable 4x MSAA (Anti-Aliasing)
-    glOrtho(0, screenWidth, 0, screenHeight, -1, 1); // Set projection matrix to match window size
-    glViewport(0, 0, screenWidth, screenHeight); // Set viewport to full window size
+    glOrtho(0, screenWidth, 0, screenHeight, -1, 1);
+    glViewport(0, 0, screenWidth, screenHeight);
 }
 
-// Function to draw a small filled circle at (cx, cy) with a given radius
+// Function to draw a small circle at (cx, cy) with a given radius
 void drawCircle(float cx, float cy, float radius) {
     glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(cx, cy); // Center of the circle
-    for (int i = 0; i <= 20; i++) { // Approximate circle with 20 segments
+    glVertex2f(cx, cy);
+    for (int i = 0; i <= 20; i++) {
         float theta = 2.0f * 3.1415926f * float(i) / float(20);
         float dx = radius * cosf(theta);
         float dy = radius * sinf(theta);
@@ -53,8 +53,8 @@ void drawBezierCurve() {
         Node &p1 = nodes[i + 1];
 
         // Control points for cubic interpolation
-        Point c1 = p0.hasHandle2 ? p0.handle2 : p0; 
-        Point c2 = p1.hasHandle1 ? p1.handle1 : p1; 
+        Point c1 = p0.hasHandle2 ? p0.handle2 : p0;
+        Point c2 = p1.hasHandle1 ? p1.handle1 : p1;
 
         // Generate Bezier curve points
         for (float t = 0; t <= 1; t += 0.01f) { // Sample curve at small intervals
@@ -72,11 +72,9 @@ void drawBezierCurve() {
     glEnd();
 }
 
-// Function to draw lines connecting nodes to their control handles
+// Function to draw red control lines between nodes and handles
 void drawHandles() {
     glColor3f(1, 0, 0); // Red color for handles
-    glEnable(GL_LINE_STIPPLE);
-    glLineStipple(1, 0xAAAA); // Dashed lines for handles
     glBegin(GL_LINES);
 
     for (auto &node : nodes) {
@@ -91,7 +89,6 @@ void drawHandles() {
     }
 
     glEnd();
-    glDisable(GL_LINE_STIPPLE);
 }
 
 // Function to draw nodes and control handles
@@ -106,16 +103,16 @@ void drawNodes() {
     }
 }
 
-// Function to render the full scene
+// Function to render everything
 void renderScene() {
-    glClear(GL_COLOR_BUFFER_BIT); // Clear screen
+    glClear(GL_COLOR_BUFFER_BIT); // Clear the screen
     drawBezierCurve(); // Draw the spline
     drawHandles(); // Draw handle connections
     drawNodes(); // Draw nodes and control points
-    glfwSwapBuffers(glfwGetCurrentContext()); // Swap buffers for smooth rendering
+    glfwSwapBuffers(glfwGetCurrentContext()); // Swap buffers
 }
 
-// Mouse Click Callback - Handles adding and selecting nodes or handles
+// Function to handle mouse clicks
 void mouseClickCallback(GLFWwindow* window, int button, int action, int mods) {
     double mx, my;
     glfwGetCursorPos(window, &mx, &my);
@@ -123,13 +120,11 @@ void mouseClickCallback(GLFWwindow* window, int button, int action, int mods) {
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         for (size_t i = 0; i < nodes.size(); ++i) {
-            // Check if user clicked on a node
             if (fabs(mx - nodes[i].x) < 5 && fabs(my - nodes[i].y) < 5) {
                 draggingNode = true;
                 draggedIndex = i;
                 return;
             }
-            // Check if user clicked on a handle
             if (nodes[i].hasHandle1 && fabs(mx - nodes[i].handle1.x) < 4 && fabs(my - nodes[i].handle1.y) < 4) {
                 draggingHandle = true;
                 draggedIndex = i;
@@ -144,18 +139,21 @@ void mouseClickCallback(GLFWwindow* window, int button, int action, int mods) {
             }
         }
 
-        // Add a new node if no existing node was clicked
+        // Add a new node with control handles
         Node newNode;
         newNode.x = static_cast<float>(mx);
         newNode.y = static_cast<float>(my);
-        if (!nodes.empty()) { // Assign control handles to smooth curve
+
+        if (!nodes.empty()) {
             newNode.hasHandle1 = true;
-            newNode.handle1.x = mx;
-            newNode.handle1.y = my + 50;
+            newNode.handle1.x = mx - 40; // Set default control points
+            newNode.handle1.y = my;
+
             nodes.back().hasHandle2 = true;
-            nodes.back().handle2.x = nodes.back().x;
-            nodes.back().handle2.y = nodes.back().y - 50;
+            nodes.back().handle2.x = nodes.back().x + 40;
+            nodes.back().handle2.y = nodes.back().y;
         }
+
         nodes.push_back(newNode);
     }
 
@@ -167,7 +165,7 @@ void mouseClickCallback(GLFWwindow* window, int button, int action, int mods) {
     }
 }
 
-// Mouse Move Callback - Handles dragging of nodes and handles
+// Function to handle mouse movement (dragging nodes or handles)
 void mouseMoveCallback(GLFWwindow* window, double mx, double my) {
     my = screenHeight - my;
 
@@ -175,7 +173,7 @@ void mouseMoveCallback(GLFWwindow* window, double mx, double my) {
         nodes[draggedIndex].x = mx;
         nodes[draggedIndex].y = my;
     }
-    
+
     if (draggingHandle && draggedIndex != -1) {
         if (draggedHandleIndex == 1) {
             nodes[draggedIndex].handle1.x = mx;
@@ -183,6 +181,17 @@ void mouseMoveCallback(GLFWwindow* window, double mx, double my) {
         } else if (draggedHandleIndex == 2) {
             nodes[draggedIndex].handle2.x = mx;
             nodes[draggedIndex].handle2.y = my;
+        }
+    }
+}
+
+// Keyboard Callback for clearing and undoing
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_E) {
+            nodes.clear();
+        } else if (key == GLFW_KEY_Z && !nodes.empty()) {
+            nodes.pop_back();
         }
     }
 }
@@ -196,6 +205,7 @@ int main() {
 
     glfwSetMouseButtonCallback(window, mouseClickCallback);
     glfwSetCursorPosCallback(window, mouseMoveCallback);
+    glfwSetKeyCallback(window, keyCallback);
 
     while (!glfwWindowShouldClose(window)) {
         renderScene();

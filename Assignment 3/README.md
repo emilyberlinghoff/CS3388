@@ -7,7 +7,7 @@ The Bezier Spline Editor is an interactive application that allows users to crea
 ## Features
 - **Create Bezier Curves** – Click to add points and form a smooth curve.
 - **Move Nodes & Control Points** – Drag nodes (green) and control points (red) to reshape the curve.
-- **Undo (Z Key)**** – Removes the last added node.
+- **Undo (Z Key)** – Removes the last added node.
 - **Clear (E Key)** – Clears all nodes and resets the canvas.
 - **Anti-Aliasing (4x MSAA)** – Smooth rendering of curves.
 - **Command-Line Arguments** – Customize window size on launch.

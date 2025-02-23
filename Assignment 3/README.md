@@ -52,7 +52,7 @@ Example:
 ./bezier 1024 768
 ```
 
-If no resolution is specified, it defaults to ****800x600**.
+If no resolution is specified, it defaults to **800x600**.
 
 ## Controls
 

@@ -59,7 +59,7 @@ If no resolution is specified, it defaults to ****800x600**.
 - **Left Click** – Add a new node (with control points).
 - **Drag Green Nodes** – Move the position of curve points.
 - **Drag Red Control Points** – Adjust curve smoothness.
-- **Z Key****** – Undo last added node.
+- **Z Key** – Undo last added node.
 - **E Key** – Clear all nodes.
 
 ## Notes

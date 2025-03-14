@@ -1,10 +1,13 @@
 # Assignment 4 - OpenGL 3D Scene
 
-[![Demo]([https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID](https://www.youtube.com/watch?v=qk8ixV8rSpk))
-
 ## Overview
 
 This project is a 3D scene rendered using OpenGL with GLFW and GLEW, implementing camera movement and object rendering using PLY models and BMP textures.
+[![Demo Video]([https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID](https://www.youtube.com/watch?v=qk8ixV8rSpk))
+![Screenshot 1](Screenshots/Screenshot 1.png)
+![Screenshot 2](Screenshots/Screenshot 2.png)
+![Screenshot 3](Screenshots/Screenshot 3.png)
+![Screenshot 4](Screenshots/Screenshot 4.png)
 
 ## Features
 

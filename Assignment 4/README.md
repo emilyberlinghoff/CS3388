@@ -1,6 +1,6 @@
 # Assignment 4 - OpenGL 3D Scene
 
-![Demo](https://youtu.be/qk8ixV8rSpk)
+[![Demo]([https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=VIDEO_ID](https://www.youtube.com/watch?v=qk8ixV8rSpk))
 
 ## Overview
 

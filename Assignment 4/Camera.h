@@ -45,7 +45,15 @@ public:
             position -= speed * front;
         }
     
-        // Rotate Left/Right (Now in Radians)
+        // Strafe Left/Right (Move sideways)
+        if (keyPressed[GLFW_KEY_A]) {
+            position -= speed * right;  // Move left
+        }
+        if (keyPressed[GLFW_KEY_D]) {
+            position += speed * right;  // Move right
+        }
+    
+        // Rotate Left/Right
         if (keyPressed[GLFW_KEY_LEFT]) {
             yaw -= rotSpeed;
         }
@@ -55,7 +63,7 @@ public:
     
         // Update camera direction vectors
         updateCameraVectors();
-    }
+    }    
       
     
 private:

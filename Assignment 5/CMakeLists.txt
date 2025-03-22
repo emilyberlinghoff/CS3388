@@ -21,6 +21,7 @@ add_executable(marching_cubes
     src/rendering.cpp
     src/camera.cpp
     src/shaders.cpp
+    src/utils.cpp
 )
 
 target_link_libraries(marching_cubes

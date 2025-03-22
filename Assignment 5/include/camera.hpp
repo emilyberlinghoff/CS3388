@@ -1,9 +1,19 @@
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#pragma once
 
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
 
-void updateCamera(GLFWwindow* window, glm::mat4 &V, float &r, float &theta, float &phi);
+class Camera {
+public:
+    Camera();
 
-#endif
+    void update(GLFWwindow* window);
+    glm::mat4 getViewMatrix() const;
+
+private:
+    float r;
+    float theta;
+    float phi;
+
+    const float angleStep = 1.5f; // degrees per frame
+};

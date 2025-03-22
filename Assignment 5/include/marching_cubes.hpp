@@ -17,6 +17,6 @@ public:
     std::vector<float> getVertices();
 };
 
-std::vector<float> compute_normals(std::vector<float> vertices);
+// std::vector<float> compute_normals(std::vector<float> vertices);
 
 #endif

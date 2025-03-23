@@ -1,3 +1,4 @@
+// main.cpp
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -40,39 +41,38 @@ int main() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // DEBUG: Wireframe mode
 
     GLuint programID = loadShaders("../shaders/vertex_shader.glsl", "../shaders/fragment_shader.glsl");
-    GLint linkStatus = 0;
-    glGetProgramiv(programID, GL_LINK_STATUS, &linkStatus);
-    if (!linkStatus) {
-        char log[512];
-        glGetProgramInfoLog(programID, 512, nullptr, log);
-        std::cerr << "Shader link error: " << log << std::endl;
-    }
 
-    auto func = [](float x, float y, float z) {
-        return x * x + y * y + z * z - 4.0f;
+    // Implicit functions for the two surfaces
+    auto funcTop = [](float x, float y, float z) {
+        return y - (sin(x) * cos(z));
     };
 
-    MarchingCubes cubes(func, 0.0f, -3.0f, 3.0f, 0.1f);
-    cubes.generate();
+    auto funcBottom = [](float x, float y, float z) {
+        return (x*x) - (y*y) - (z*z) - z - 1.5f;
+    };
 
-    std::cout << "Generated " << cubes.getVertices().size() / 9 << " triangles.\n";
-    std::cout << "Vertices: " << cubes.getVertices().size() << "\n";
+    // Marching Cubes for the top surface
+    MarchingCubes cubesTop(funcTop, 0.0f, -3.0f, 3.0f, 0.1f);
+    cubesTop.generate();
 
-    GLuint vao, vertexVBO, normalVBO;
-    setupRendering(vao, vertexVBO, normalVBO, programID);
-    updateBuffers(vao, vertexVBO, normalVBO, cubes.getVertices(), compute_normals(cubes.getVertices()));
+    // Marching Cubes for the bottom surface
+    MarchingCubes cubesBottom(funcBottom, 0.0f, -3.0f, 3.0f, 0.1f);
+    cubesBottom.generate();
 
-    const auto& verts = cubes.getVertices();
-    std::cout << "First few vertices: ";
-    for (int i = 0; i < std::min(9, static_cast<int>(verts.size())); ++i)
-        std::cout << verts[i] << " ";
-    std::cout << std::endl;
+    // Setup rendering for both surfaces
+    GLuint vaoTop, vertexVBOTop, normalVBOTop;
+    setupRendering(vaoTop, vertexVBOTop, normalVBOTop, programID);
+    updateBuffers(vaoTop, vertexVBOTop, normalVBOTop, cubesTop.getVertices(), compute_normals(cubesTop.getVertices()));
+
+    GLuint vaoBottom, vertexVBOBottom, normalVBOBottom;
+    setupRendering(vaoBottom, vertexVBOBottom, normalVBOBottom, programID);
+    updateBuffers(vaoBottom, vertexVBOBottom, normalVBOBottom, cubesBottom.getVertices(), compute_normals(cubesBottom.getVertices()));
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
     Camera camera;
 
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(1.0f, 0.0f, 0.0f, 1.0f); // red background for visibility
+        glClearColor(0.2, 0.2, 0.3, 0); // Dark grey background
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         camera.update(window);
@@ -83,14 +83,18 @@ int main() {
         GLuint mvpID = glGetUniformLocation(programID, "MVP");
         glUniformMatrix4fv(mvpID, 1, GL_FALSE, &mvp[0][0]);
 
-        glBindVertexArray(vao);
+        int winWidth, winHeight;
+        glfwGetFramebufferSize(window, &winWidth, &winHeight);
 
-        std::cout << "Drawing " << verts.size() / 3 << " vertices...\n";
-        glDrawArrays(GL_TRIANGLES, 0, verts.size() / 3);
+        // Render top surface
+        glViewport(0, (winHeight / 2) + 1, winWidth, winHeight / 2); // Top half of the window
+        glBindVertexArray(vaoTop);
+        glDrawArrays(GL_TRIANGLES, 0, cubesTop.getVertices().size() / 3);
 
-        GLenum err = glGetError();
-        if (err != GL_NO_ERROR)
-            std::cerr << "OpenGL Error: " << err << std::endl;
+        // Render bottom surface
+        glViewport(0, 0, winWidth, (winHeight / 2) - 1); // Bottom half of the window
+        glBindVertexArray(vaoBottom);
+        glDrawArrays(GL_TRIANGLES, 0, cubesBottom.getVertices().size() / 3);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -99,9 +103,15 @@ int main() {
         glfwPollEvents();
     }
 
-    glDeleteBuffers(1, &vertexVBO);
-    glDeleteBuffers(1, &normalVBO);
-    glDeleteVertexArrays(1, &vao);
+    // Cleanup
+    glDeleteBuffers(1, &vertexVBOTop);
+    glDeleteBuffers(1, &normalVBOTop);
+    glDeleteVertexArrays(1, &vaoTop);
+
+    glDeleteBuffers(1, &vertexVBOBottom);
+    glDeleteBuffers(1, &normalVBOBottom);
+    glDeleteVertexArrays(1, &vaoBottom);
+
     glDeleteProgram(programID);
 
     glfwDestroyWindow(window);

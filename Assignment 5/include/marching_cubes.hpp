@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include <string>
 
 class MarchingCubes {
     std::function<float(float, float, float)> generationFunction;
@@ -10,13 +11,13 @@ class MarchingCubes {
     std::vector<float> vertices;
 
     void generate_iterative_new();
+
 public:
     bool finished;
     MarchingCubes(std::function<float(float, float, float)> f, float isoval, float min, float max, float step);
     void generate();
     std::vector<float> getVertices();
+    void writePLY(const std::string& filename);
 };
-
-// std::vector<float> compute_normals(std::vector<float> vertices);
 
 #endif

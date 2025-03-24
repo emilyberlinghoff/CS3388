@@ -1,7 +1,10 @@
 #include "marching_cubes.hpp"
 #include "TriTable.hpp"
+#include "utils.hpp"
 
 #include <iostream>
+#include <fstream> 
+#include <vector>
 #include <glm/glm.hpp>
 
 // Constructor
@@ -33,6 +36,7 @@ MarchingCubes::MarchingCubes(std::function<float(float, float, float)> f,
 // Main public entry point
 void MarchingCubes::generate() {
     generate_iterative_new();
+    writePLY("output.ply"); // Write the mesh to a PLY file
 }
 
 // Return the vertices of the mesh
@@ -101,4 +105,25 @@ void MarchingCubes::generate_iterative_new() {
 
     finished = true;
     std::cout << "Generated " << vertices.size() / 9 << " triangles.\n";
+}
+
+void MarchingCubes::writePLY(const std::string& filename) {
+    std::vector<float> normals = compute_normals(vertices);
+    std::ofstream plyFile(filename);
+
+    plyFile << "ply\nformat ascii 1.0\nelement vertex " << vertices.size() / 3 << "\n";
+    plyFile << "property float x\nproperty float y\nproperty float z\n";
+    plyFile << "property float nx\nproperty float ny\nproperty float nz\n";
+    plyFile << "element face " << vertices.size() / 9 << "\n";
+    plyFile << "property list uchar int vertex_indices\nend_header\n";
+
+    for (size_t i = 0; i < vertices.size(); i += 3) {
+        plyFile << vertices[i] << " " << vertices[i+1] << " " << vertices[i+2] << " ";
+        plyFile << normals[i] << " " << normals[i+1] << " " << normals[i+2] << "\n";
+    }
+
+    for (size_t i = 0; i < vertices.size() / 3; i += 3)
+        plyFile << "3 " << i << " " << i+1 << " " << i+2 << "\n";
+
+    plyFile.close();
 }

@@ -58,9 +58,9 @@ make
 ```
 
 ## Output Screenshots
-![Screenshot 1](/screenshots/Screenshot 2025-03-24 at 17)
-![Screenshot 2](/screenshots/Screenshot 2025-03-24 at 17)
-![Screenshot 2](/screenshots/Screenshot 2025-03-24 at 17)
+![Screenshot 1](https://github.com/emilyberlinghoff/CS3388/blob/main/Assignment%205/screenshots/Screenshot%202025-03-24%20at%2017.15.22.png)
+![Screenshot 2](https://github.com/emilyberlinghoff/CS3388/blob/main/Assignment%205/screenshots/Screenshot%202025-03-24%20at%2017.15.34.png)
+![Screenshot 2](https://github.com/emilyberlinghoff/CS3388/blob/main/Assignment%205/screenshots/Screenshot%202025-03-24%20at%2017.15.48.png)
 
 ## File Structure
 ```bash

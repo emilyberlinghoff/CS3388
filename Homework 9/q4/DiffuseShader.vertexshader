@@ -1,0 +1,28 @@
+#version 330 core
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+
+uniform mat4 MVP;
+uniform mat4 View;
+uniform mat4 Model;
+uniform vec3 lightPos; // in world coordinates
+
+out vec3 FragNormal;
+out vec3 FragLightDir;
+out vec3 FragViewDir;
+
+void main() {
+    vec3 worldPos = vec3(Model * vec4(position, 1.0));
+    vec3 worldNormal = normalize(mat3(transpose(inverse(Model))) * normal);
+
+    vec3 viewPos = vec3(inverse(View)[3]); // camera position from View matrix
+    vec3 lightDir = lightPos - worldPos;
+    vec3 viewDir = viewPos - worldPos;
+
+    FragNormal = worldNormal;
+    FragLightDir = normalize(lightDir);
+    FragViewDir = normalize(viewDir);
+
+    gl_Position = MVP * vec4(position, 1.0);
+}

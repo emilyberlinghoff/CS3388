@@ -1,0 +1,71 @@
+#version 410
+
+layout (triangles) in;
+layout (triangle_strip, max_vertices=3) out;
+
+// Output data per vertex, passed to primitive assembly and rasterization
+// Output per-vertex to fragment shader
+out vec3 normal_gs;
+out vec3 eye_gs;
+out vec3 light_gs;
+out vec2 uv_gs;
+
+// From TES
+in vec3 normal_tes[];
+in vec3 eye_tes[];
+in vec3 light_tes[];
+in vec2 uv_tes[];
+
+uniform mat4 MVP;
+
+uniform sampler2D displacementTexture;
+uniform float time;
+
+vec3 GetNormal(vec4 a, vec4 b, vec4 c)
+{
+   vec3 x = b.xyz - a.xyz;
+   vec3 y = c.xyz - b.xyz;
+   return normalize(cross(x, y));
+}
+
+
+vec3 Gerstner(vec3 worldpos, float w, float A, float phi, float Q, vec2 D, int N) {
+    float f = w * dot(D, vec2(worldpos.x, worldpos.z)) + phi * time;
+    float cosf = cos(f);
+    float sinf = sin(f);
+
+    return vec3(
+        Q * A * D.x * cosf,
+        A * sinf,
+        Q * A * D.y * cosf
+    );
+}
+
+void main() {
+    vec4 pos[3];
+
+    for(int i = 0; i < 3; ++i) {
+        pos[i] = gl_in[i].gl_Position;
+
+        // Apply 2-4 Gerstner waves
+        pos[i] += vec4(Gerstner(pos[i].xyz, 4.0, 0.08, 1.1, 0.75, vec2(0.3, 0.6), 4), 0.0);
+        pos[i] += vec4(Gerstner(pos[i].xyz, 2.0, 0.05, 1.1, 0.75, vec2(0.2, 0.866), 4), 0.0);
+    }
+
+    vec3 normal = GetNormal(pos[0], pos[1], pos[2]);
+
+    for(int i = 0; i < 3; ++i) {
+        // Output interpolated data
+        // normal_out = normal; etc.
+        gl_Position = MVP * pos[i];
+
+		normal_gs = normal;
+		eye_gs = eye_tes[i];
+		light_gs = light_tes[i];
+		uv_gs = uv_tes[i];
+
+        EmitVertex();
+    }
+
+    EndPrimitive();
+}

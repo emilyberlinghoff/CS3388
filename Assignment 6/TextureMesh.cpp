@@ -52,6 +52,12 @@ static void loadPLY(const char* path, std::vector<float>& vertices, std::vector<
         indices.push_back(i2);
     }
 
+    std::cout << "[PLY] " << path << " - "
+              << "Verts: " << vertices.size() / 3
+              << ", Normals: " << normals.size() / 3
+              << ", UVs: " << uvs.size() / 2
+              << ", Indices: " << indices.size() / 3 << " faces\n";
+
     file.close();
 }
 
@@ -96,16 +102,19 @@ TextureMesh::TextureMesh(const char* modelPath, const char* texturePath, GLuint 
 void TextureMesh::draw(glm::vec3 lightPos, glm::mat4 V, glm::mat4 P, glm::mat4 M) {
     glm::mat4 MVP = P * V * M;
 
+    std::cout << "[DRAW] Using texture shader program: " << shaderProgram << std::endl;
+
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MVP"), 1, GL_FALSE, glm::value_ptr(MVP));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "M"), 1, GL_FALSE, glm::value_ptr(M));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "V"), 1, GL_FALSE, glm::value_ptr(V));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "P"), 1, GL_FALSE, glm::value_ptr(P));
     glUniform3fv(glGetUniformLocation(shaderProgram, "lightPos"), 1, glm::value_ptr(lightPos));
+    glUniform3fv(glGetUniformLocation(shaderProgram, "eyePos"), 1, glm::value_ptr(glm::vec3(0, 10, 20)));
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glUniform1i(glGetUniformLocation(shaderProgram, "waterTexture"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "textureSampler"), 0);
 
     glBindVertexArray(vaoID);
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);

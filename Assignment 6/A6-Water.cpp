@@ -103,9 +103,10 @@ int main( int argc, char* argv[])
 
 	PlaneMesh plane(xmin, xmax, stepsize);
 	
-	TextureMesh boat("Assets/boat.ply", "Assets/boat.bmp", shaderProgram);
-	TextureMesh head("Assets/head.ply", "Assets/head.bmp", shaderProgram);
-	TextureMesh eyes("Assets/eyes.ply", "Assets/eyes.bmp", shaderProgram);
+	GLuint textureShader = LoadShaders("TextureShader.vertexshader", "TextureShader.fragmentshader");
+	TextureMesh boat("Assets/boat.ply", "Assets/boat.bmp", textureShader);
+	TextureMesh head("Assets/head.ply", "Assets/head.bmp", textureShader);
+	TextureMesh eyes("Assets/eyes.ply", "Assets/eyes.bmp", textureShader);
 
 
 	// Ensure we can capture the escape key being pressed below
@@ -146,6 +147,10 @@ int main( int argc, char* argv[])
 
 		glUseProgram(shaderProgram); // Make sure your shader is bound!
 
+		GLuint textureShader = LoadShaders("TextureShader.vertexshader", "TextureShader.fragmentshader");
+		std::cout << "[INIT] Texture shader program ID: " << textureShader << std::endl;
+
+
 		// Set matrix uniforms
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "MVP"), 1, GL_FALSE, glm::value_ptr(MVP));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "M"), 1, GL_FALSE, glm::value_ptr(M));
@@ -167,7 +172,7 @@ int main( int argc, char* argv[])
 		// Bind textures
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, waterTextureID); // Make sure you loaded this
-		glUniform1i(glGetUniformLocation(shaderProgram, "waterTexture"), 0);
+		glUniform1i(glGetUniformLocation(shaderProgram, "modelTexture"), 0);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, displacementTextureID); // Also needs to be loaded

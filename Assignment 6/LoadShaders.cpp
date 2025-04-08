@@ -5,6 +5,10 @@
 #include <iostream>
 
 GLuint LoadShader(const char* path, GLenum shaderType) {
+    if (path == nullptr || path[0] == '\0') {
+        return 0; // Skip empty shaders
+    }
+
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "Failed to open shader: " << path << std::endl;
@@ -31,12 +35,12 @@ GLuint LoadShader(const char* path, GLenum shaderType) {
     return shader;
 }
 
+// Define the 5-argument version first
 GLuint LoadShaders(const char* vertex_file_path,
                    const char* fragment_file_path,
                    const char* tessControl_file_path,
                    const char* tessEval_file_path,
                    const char* geometry_file_path) {
-
     GLuint vertexShader = LoadShader(vertex_file_path, GL_VERTEX_SHADER);
     GLuint fragmentShader = LoadShader(fragment_file_path, GL_FRAGMENT_SHADER);
     GLuint tessControlShader = LoadShader(tessControl_file_path, GL_TESS_CONTROL_SHADER);
@@ -44,11 +48,12 @@ GLuint LoadShaders(const char* vertex_file_path,
     GLuint geometryShader = LoadShader(geometry_file_path, GL_GEOMETRY_SHADER);
 
     GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glAttachShader(program, tessControlShader);
-    glAttachShader(program, tessEvalShader);
-    glAttachShader(program, geometryShader);
+    if (vertexShader) glAttachShader(program, vertexShader);
+    if (fragmentShader) glAttachShader(program, fragmentShader);
+    if (tessControlShader) glAttachShader(program, tessControlShader);
+    if (tessEvalShader) glAttachShader(program, tessEvalShader);
+    if (geometryShader) glAttachShader(program, geometryShader);
+    
     glLinkProgram(program);
 
     GLint result;
@@ -59,11 +64,17 @@ GLuint LoadShaders(const char* vertex_file_path,
         std::cerr << "Shader program link error:\n" << infoLog << std::endl;
     }
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    glDeleteShader(tessControlShader);
-    glDeleteShader(tessEvalShader);
-    glDeleteShader(geometryShader);
+    // Clean up
+    if (vertexShader) glDeleteShader(vertexShader);
+    if (fragmentShader) glDeleteShader(fragmentShader);
+    if (tessControlShader) glDeleteShader(tessControlShader);
+    if (tessEvalShader) glDeleteShader(tessEvalShader);
+    if (geometryShader) glDeleteShader(geometryShader);
 
     return program;
+}
+
+// Now the 2-arg version can call the 5-arg version
+GLuint LoadShaders(const char* vertex_file_path, const char* fragment_file_path) {
+    return LoadShaders(vertex_file_path, fragment_file_path, "", "", "");
 }

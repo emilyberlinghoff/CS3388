@@ -42,7 +42,7 @@ make clean && make
 
 ## Output Screenshots
 
-
+![Output](https://github.com/emilyberlinghoff/CS3388/blob/main/Assignment%206/output.png)
 
 ## File Structure
 

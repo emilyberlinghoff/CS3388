@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    canvas {
+      background-color: #70c5ce;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="320" height="480"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Game variables
+    let birdY = canvas.height / 2;
+    let birdSpeed = 0;
+    const birdSize = 20;
+    const gravity = 0.5;
+    const flapPower = -8;
+
+    const pipeWidth = 40;
+    const pipeGap = 100;
+    let pipeX = canvas.width;
+    let pipeHeight = Math.floor(Math.random() * (canvas.height - pipeGap));
+
+    let score = 0;
+    let gameOver = false;
+
+    // Listen for key presses
+    document.addEventListener('keydown', () => {
+      birdSpeed = flapPower;
+    });
+
+    // Game loop
+    function gameLoop() {
+      if (!gameOver) {
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Bird movement
+        birdSpeed += gravity;
+        birdY += birdSpeed;
+
+        // Pipe movement
+        pipeX -= 2;
+        if (pipeX + pipeWidth < 0) {
+          pipeX = canvas.width;
+          pipeHeight = Math.floor(Math.random() * (canvas.height - pipeGap));
+          score++;
+        }
+
+        // Draw bird
+        ctx.fillStyle = 'yellow';
+        ctx.fillRect(50, birdY, birdSize, birdSize);
+
+        // Draw pipes
+        ctx.fillStyle = 'green';
+        ctx.fillRect(pipeX, 0, pipeWidth, pipeHeight);
+        ctx.fillRect(pipeX, pipeHeight + pipeGap, pipeWidth, canvas.height - (pipeHeight + pipeGap));
+
+        // Draw score
+        ctx.fillStyle = 'black';
+        ctx.font = '20px Arial';
+        ctx.fillText('Score: ' + score, 10, 20);
+
+        // Check for collision
+        if (birdY + birdSize > canvas.height || birdY < 0 ||
+            (50 < pipeX + pipeWidth && 50 + birdSize > pipeX &&
+             (birdY < pipeHeight || birdY + birdSize > pipeHeight + pipeGap))) {
+          gameOver = true;
+        }
+
+        // Loop the game
+        requestAnimationFrame(gameLoop);
+      } else {
+        ctx.fillStyle = 'red';
+        ctx.font = '30px Arial';
+        ctx.fillText('Game Over', canvas.width / 4, canvas.height / 2);
+      }
+    }
+
+    // Start the game
+    gameLoop();
+  </script>
+</body>
+</html>

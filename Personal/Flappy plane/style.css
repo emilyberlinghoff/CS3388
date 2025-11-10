@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  canvas {
+    background-color: #70c5ce;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  #startButton {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  #countdown {
+    text-align: center;
+    font-size: 30px;
+    color: red;
+  }
+  

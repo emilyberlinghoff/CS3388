@@ -1,9 +1,0 @@
-FIRST sets:
-FIRST(A) = { ε, a }
-FIRST(C) = { ε,   }
-FIRST(S) = {  , ε, a }
-
-FOLLOW sets:
-FOLLOW(S) = {  }
-FOLLOW(A) = {  , b, $ }
-FOLLOW(C) = {   }

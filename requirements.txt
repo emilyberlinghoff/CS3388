@@ -1,0 +1,13 @@
+# Requirements for OpenGL Triangle Rendering Program
+
+# Compiler and build tools
+g++
+
+# OpenGL framework (pre-installed on macOS)
+OpenGL
+
+# GLFW for window and context management
+glfw
+
+# Optional: FreeGLUT (if using GLUT-based rendering)
+freeglut
